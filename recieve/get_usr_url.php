@@ -3,9 +3,12 @@
 <div id="endora" style="display: none">
   <endora>
 </div>
-<?php
-include("menu.php");
-?>
+<ul>
+  <li><a href="../">Send</a></li>
+  <li><a href="../image">Send image</a></li>
+  <li><a class="active" href="./">Recieve</a></li>
+  <li style="float:right"><a href="../about.html">About</a></li>
+</ul>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -15,7 +18,7 @@ include("menu.php");
 if (!empty($_POST['user'])) {
   $user_code = $_POST['user'];
 
-  include("./db.php");
+  include("../db.php");
   // Create connection
   $conn = new mysqli($servername, $username, $password, $DBName);
 
@@ -64,4 +67,4 @@ if (!empty($_POST['user'])) {
     </div>
   </div>
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
-  <script src="./js/get_link.js"></script>
+  <script src="../js/get_link.js"></script>

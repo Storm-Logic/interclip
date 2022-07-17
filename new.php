@@ -2,9 +2,12 @@
   <endora>
 </div>
 <link rel="stylesheet" href="css/new.css">
-<?php
-include("menu.php");
-?>
+<ul>
+  <li><a class="active" href="./">Send</a></li>
+  <li><a href="./image">Send image</a></li>
+  <li><a href="./recieve/">Recieve</a></li>
+  <li style="float:right"><a href="about">About</a></li>
+</ul>
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 

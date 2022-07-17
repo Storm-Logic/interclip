@@ -57,10 +57,4 @@ center {
   display: block;
   margin-left: auto;
   margin-right: auto;
-  text-align: center;
-  }
-  @media only screen and (max-width: 600px) {
-    embed.title {
-      width: 100vw;
-    }
   }
