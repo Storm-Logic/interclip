@@ -12,7 +12,7 @@ font-size: 20px;
 padding-right: 10vw;
 padding-left: 10vw;
 }
-div.nav ul {
+ul.nav {
     list-style-type: none;
     margin: 0;
     padding: 0;
@@ -20,11 +20,11 @@ div.nav ul {
     background-color: #333;
   }
   
-  div.nav li {
+  li.nav {
     float: left;
   }
   
-  div.nav li a {
+  li.nav a {
     display: block;
     color: white;
     text-align: center;
@@ -32,7 +32,7 @@ div.nav ul {
     text-decoration: none;
   }
   
-  div.nav li a:hover:not(.active) {
+  li.nav a:hover:not(.active) {
     background-color: #111;
   }
   
