@@ -16,7 +16,7 @@ Then press Enter and through the magic of code here is the code to your link!
 
 ## To-dos:
 * SoundCloud embed
-* PasteBin Embed
-* fix text-overflow with long URLs on new.php
+* PasteBin Embed¨
 * Streamable embed
+* fix text-overflow with long URLs on new.php
 * a universal file uploader [StackOverflow](https://stackoverflow.com/questions/58153921/how-can-you-upload-to-catbox-using-javascript)
