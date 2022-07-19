@@ -1,7 +1,5 @@
 <?php
 if(isset($_POST['url'])) {
-  if(filter_var($_POST['url'], FILTER_VALIDATE_URL))
-{
   include "db.php";
 
   
@@ -28,10 +26,3 @@ if ($conn->query($sqlquery) === TRUE) {
 $conn->close();
 }
 echo $usr;
-
-}
-else
-{
-    echo "Error: no URL given";
-   // my else codes goes
-}
