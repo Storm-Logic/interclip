@@ -45,7 +45,7 @@ modal.style.display = "none";
       
       ele.addEventListener('click', function() {
         input.value = null;
-        if(clickEnabled) input.click();
+        input.click();
       });
     }
     window.makeDroppable = makeDroppable;
@@ -68,11 +68,15 @@ modal.style.display = "none";
     return file;
 }
 function uploadRe($files) {
+    
+      //var $files = $(this).get(0).files;
+
         console.log($files);
+
         // Begin file upload
         console.log("Uploading file to put.re..");
     
-        // API Endpoint
+        // Replace ctrlq with your own API key
         var apiUrl = 'https://api.put.re/upload';
     
         var settings = {
@@ -93,11 +97,11 @@ function uploadRe($files) {
 
         $.ajax(settings).done(function(response) {
             var data = JSON.parse(response);
-            console.log(data)
+            console.log(data.data.link)
           $.post(
             "api.php",
             {
-              url: data.data.deleteLink
+              url: data.data.link
             },
             function(data, status) {
               console.log("Data: " + data + "\nStatus: " + status);
