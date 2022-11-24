@@ -12,7 +12,7 @@
  </head>
  <div class="nav">
      <?php
-include("includes/menu.php");
+include("menu.php");
 ?>
  </div>
  <br>
