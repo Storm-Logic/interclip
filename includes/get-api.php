@@ -1,19 +1,14 @@
 <?php
-
-header('Content-Type: application/json');
-
-if (!empty($_POST['code'])) {
-  $user_code = $_POST['code'];
-} elseif (!empty($_GET['code'])) {
-  $user_code = $_GET['code'];
+if (!empty($_POST['user'])) {
+  $user_code = $_POST['user'];
+} elseif (!empty($_GET['user'])) {
+  $user_code = $_GET['user'];
 }
-
 include_once "components/get.php";
-
 if (isset($url)) {
-  echo json_encode(['status' => 'success', 'result' => $url]);
+  echo $url;
 } else {
   http_response_code(400);
-  echo json_encode(['status' => 'error', 'result' => 'no user code provided']);
+  echo "Error: no code given";
   die();
 }

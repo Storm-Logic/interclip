@@ -2,7 +2,7 @@
 
   include_once "./db.php";
 
-if (isset($user_code)) {
+
   // Create connection
   $conn = new mysqli($servername, $username, $password, $DBName);
 
@@ -23,4 +23,3 @@ if (isset($user_code)) {
 
   $conn->close();
   //}
-}
