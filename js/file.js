@@ -172,6 +172,6 @@ function formatBytes(bytes, decimals = 2) {
         uploadRe(blob);
       }
     }
-  }
+  };
 
 })(this);
