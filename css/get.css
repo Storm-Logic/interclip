@@ -3,7 +3,7 @@ body {
   margin: 0;
   width: 100%;
   height: auto;
-  font-family: "Roboto", sans-serif;
+  font-family: "Palanquin";
   background: #3cbcc3;
 }
 
@@ -33,6 +33,7 @@ body {
 }
 
 #fullscreen .fullscreen-content .title h1 {
+  font-family: "Roboto", sans-serif;
   font-size: 3em;
   margin: 5px 0;
   text-overflow: ellipsis;
@@ -40,9 +41,9 @@ body {
 }
 
 #fullscreen .fullscreen-content .title p {
+  font-family: "Roboto", sans-serif;
   font-size: 2em;
 }
-
 h1 a {
   text-decoration: none;
   color: white;
