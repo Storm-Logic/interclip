@@ -1,15 +1,6 @@
 <?php
-if (empty($user)) {
-  if ($_ENV['AUTH_TYPE'] === "account") {
-    $session = $auth0->getCredentials();
-    if ($session !== null) {
-      $user = $auth0->getUser();
-    } else {
-      $user = false;
-      $isStaff = false;
-    }
-  }
-}
+
+require ROOT_DIR . "/includes/lib/auth.php";
 
 exec('git describe --abbrev=0 --tags', $release);
 if ($user !== false) {
