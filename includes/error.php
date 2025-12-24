@@ -10,8 +10,9 @@
     $clipRegex = "/([a-z|0-9|A-Z]){5}/g";
 
     /* Check if requested string wasn't a code */
-    if (strlen(basename($_SERVER['REQUEST_URI'])) == 5) {
-        $user_code = basename($_SERVER['REQUEST_URI']);
+    $user_code = substr(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH), 1);
+
+    if (strlen($user_code) == 5) {
         include_once "components/get.php";
 
         if (isset($url)) {
