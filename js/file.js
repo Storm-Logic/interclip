@@ -19,7 +19,7 @@ const showError = (message) => {
   }).then(() => {
     location.reload();
   });
-}
+};
 
 const submitClip = (url) => {
   output.innerHTML += `
@@ -272,7 +272,6 @@ window.onload = () => {
         .getAttribute("disabled") === null;
 
     if (optionAllowed) {
-      console.log(optionAllowed, preferredDestination);
       storageProvider.value = preferredDestination;
     }
   }
@@ -283,4 +282,3 @@ window.onload = () => {
       fact.innerText = res;
     });
 };
-
