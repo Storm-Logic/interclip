@@ -35,7 +35,7 @@
                         <option value="iclip" selected>Interclip Storage Server</option>
                     </select>
                 </div>
-                <div class="demo-droppable" id="dropzone">
+                <div class="droppable-area" id="dropzone">
                     <p>Drag files here or click to upload</p>
                 </div>
 
@@ -43,16 +43,16 @@
 
                     <!-- Modal content -->
                     <div class="modal-content">
-                        <p>
+                        <span>
                             <progress id="progressBar" value="0" max="100"></progress>
                             <br>
                             <span id="progressPercent">
                                 0%
                             </span>
-                        <div id="fact">
-                            Inter-clippin' good!
-                        </div>
-                        </p>
+                            <div id="fact">
+                                Inter-clippin' good!
+                            </div>
+                        </span>
                     </div>
 
                 </div>
@@ -62,7 +62,7 @@
             <script>
                 const csrfToken = "<?= $_SESSION['token'] ?>";
             </script>
-            <script src="<?php echo ROOT ?>/js/file.js"></script>
+            <script src="<?php echo ROOT ?>/out/file.js"></script>
         <?php else : ?>
             <span id="content"> </span>
             <div class="title">
