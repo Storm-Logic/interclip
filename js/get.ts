@@ -5,7 +5,13 @@ const showUrl = (url: string) => {
   urlElement.innerText = url;
 };
 
-showUrl(shownUrl.toString().replace(/https?:\/\//, ""));
+// Remove the protocol and optionally a trailing slash
+showUrl(
+  shownUrl
+    .toString()
+    .replace(/https?:\/\//, "")
+    .replace(/\/$/, "")
+);
 
 const defaultFilesEndpoint = "files.interclip.app";
 
