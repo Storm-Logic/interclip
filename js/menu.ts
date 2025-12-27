@@ -89,7 +89,7 @@ export const alertUser = async (
   }
 };
 
-function a11yClick(event) {
+export function a11yClick(event) {
   if (event.type === "keydown") {
     if (event.code === "Space" || event.code === "Enter") {
       return true;
@@ -99,14 +99,27 @@ function a11yClick(event) {
   }
 }
 
+const closeSettingsModal = () => {
+  settingsModal.classList.remove("settings-shown");
+}
+
+const showSettingsModal = () => {
+  settingsModal.classList.add("settings-shown");
+}
+
 // When the user clicks the button, open the modal
 btn.onclick = () => {
-  settingsModal.classList.add("settings-shown");
+  showSettingsModal();
+  settingsModal.addEventListener("keydown", e => {
+    if (e.code === "Escape") {
+      closeSettingsModal();
+    }
+  })
 };
 
 btn.onkeydown = (evt) => {
   if (a11yClick(evt)) {
-    settingsModal.classList.toggle("settings-shown");
+    showSettingsModal();
   }
 };
 
@@ -165,15 +178,14 @@ const updateOptions = () => {
   betaToggle.checked = !localStorage.getItem("hideBetaMenu");
 };
 
-// When the user clicks on the (x) <span>, close the modal
 closeSettingsModalButton.onclick = () => {
-  settingsModal.classList.remove("settings-shown");
+  closeSettingsModal();
 };
 
 // When the user clicks anywhere outside of the modal, close it
 document.onclick = (event) => {
   if (event.target === settingsModal) {
-    settingsModal.classList.remove("settings-shown");
+    closeSettingsModal();
   }
 };
 
@@ -189,18 +201,21 @@ const updateMenu = () => {
   }
 };
 
-console.log(
-  `%c
-    ▄▄▄ ▄▄    ▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   ▄▄▄▄▄▄▄ ▄▄▄     ▄▄▄ ▄▄▄▄▄▄▄ 
-    █   █  █  █ █       █       █   ▄  █ █       █   █   █   █       █
-    █   █   █▄█ █▄     ▄█    ▄▄▄█  █ █ █ █       █   █   █   █    ▄  █
-    █   █       █ █   █ █   █▄▄▄█   █▄▄█▄█     ▄▄█   █   █   █   █▄█ █
-    █   █  ▄    █ █   █ █    ▄▄▄█    ▄▄  █    █  █   █▄▄▄█   █    ▄▄▄█
-    █   █ █ █   █ █   █ █   █▄▄▄█   █  █ █    █▄▄█       █   █   █    
-    █▄▄▄█▄█  █▄▄█ █▄▄▄█ █▄▄▄▄▄▄▄█▄▄▄█  █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█▄▄▄█    %c ${version}`,
-  "color:#FF9800",
-  "color:green;font-weight:bold"
-);
+if (!window["shownConsoleNotice"]) {
+  console.log(
+    `%c
+      ▄▄▄ ▄▄    ▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   ▄▄▄▄▄▄▄ ▄▄▄     ▄▄▄ ▄▄▄▄▄▄▄ 
+      █   █  █  █ █       █       █   ▄  █ █       █   █   █   █       █
+      █   █   █▄█ █▄     ▄█    ▄▄▄█  █ █ █ █       █   █   █   █    ▄  █
+      █   █       █ █   █ █   █▄▄▄█   █▄▄█▄█     ▄▄█   █   █   █   █▄█ █
+      █   █  ▄    █ █   █ █    ▄▄▄█    ▄▄  █    █  █   █▄▄▄█   █    ▄▄▄█
+      █   █ █ █   █ █   █ █   █▄▄▄█   █  █ █    █▄▄█       █   █   █    
+      █▄▄▄█▄█  █▄▄█ █▄▄▄█ █▄▄▄▄▄▄▄█▄▄▄█  █▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█▄▄▄█    %c ${version}`,
+    "color:#FF9800",
+    "color:green;font-weight:bold"
+  );
+  window["shownConsoleNotice"] = true;
+}
 
 if (loggedIn && isAdmin) {
   const isStaging = adminBar!.classList.contains("staging");
@@ -227,13 +242,24 @@ if (loggedIn && isAdmin) {
       });
   }
 
-  document.addEventListener("keydown", (e) => {
-    // Let the user disable the modal by pressing Escape
-    if (e.code === "Escape") {
-      e.preventDefault();
-      settingsModal.classList.remove("settings-shown");
-    }
+  const userGreeting = document.getElementById("user-greet");
+  const logoutButton = document.getElementById("logout-button");
 
+  if (userGreeting && logoutButton) {
+    userGreeting.addEventListener("focusin", () => {
+      // Shift focus from itself to Log out action button
+      logoutButton.focus();
+      logoutButton.style.display = "inline-block";
+      userGreeting.tabIndex = -1;
+    });
+
+    logoutButton.addEventListener("blur", () => {
+      userGreeting.tabIndex = 0;
+      logoutButton.style.display = ""; // Reset display back to being hidden
+    });
+  }
+
+  document.addEventListener("keydown", (e) => {
     if (e.shiftKey && e.code === "KeyB") {
       e.preventDefault();
       const displayStatus =
@@ -284,3 +310,4 @@ window.addEventListener("load", () => {
   showPaintTimings();
   updateOptions(); // Rerender the option values
 });
+

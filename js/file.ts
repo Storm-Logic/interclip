@@ -1,30 +1,47 @@
+import { a11yClick, alertUser } from "./menu";
 import { formatBytes } from "./lib/utils";
-import { alertUser } from "./menu";
+import { initTabs } from "./lib/tabs";
 
-const modal = document.getElementById("modal") as HTMLDivElement;
-const output = document.querySelector(".output") as HTMLSpanElement;
-const fact = document.getElementById("fact") as HTMLSpanElement;
-const dropzone = document.getElementById("dropzone") as HTMLDivElement;
+const modal = document.getElementById("modal") as HTMLDialogElement;
+const dropzone = document.getElementById("dropzone") as HTMLDivElement | null;
 const storageProvider = document.getElementById(
   "provider"
 ) as HTMLSelectElement;
+const cancelUploadButton = document.getElementById(
+  "cancel-upload"
+) as HTMLSpanElement;
+const gistForm = document.getElementById("gist") as HTMLFormElement | null;
 
-const fileSizeLimitInMegabytes = 1000;
-const fileSizeLimitInBytes = fileSizeLimitInMegabytes * 1_048_576;
+if (gistForm) {
+  gistForm.onsubmit = async (e) => {
+    e.preventDefault();
+
+    if (!e.target) return await showError("Huh");
+
+    const formData = new FormData(e.target as HTMLFormElement);
+    const entries = formData.entries();
+    const { data } = Object.fromEntries(entries);
+
+    const type = "text/plain;charset=utf-8";
+    const blob = new Blob([data], { type });
+    const file = new File([blob], "clip.txt", {
+      type,
+    });
+    uploadFile(file);
+  };
+}
 
 function encodeHTML(s: string) {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
 }
 
-const showError = (message: string) => {
-  alertUser(
-    {
-      title: "Something's went wrong",
-      text: `Upload failed with HTTP ${message}`,
-      icon: "error",
-    },
-    true
-  );
+const showError = async (message: string) => {
+  modal.close();
+  await alertUser({
+    title: "Something's went wrong",
+    text: message,
+    icon: "error",
+  });
 };
 
 declare global {
@@ -53,24 +70,71 @@ const submitClip = (url: string) => {
   form.submit();
 };
 
+const registerDomAction = (el: HTMLElement, callback: () => any) => {
+  el.onclick = () => {
+    callback();
+  };
+
+  el.onkeydown = (e) => {
+    if (a11yClick(e)) {
+      callback();
+    }
+  };
+};
+
 function showCode(data) {
   data = encodeHTML(data);
 
-  modal.style.display = "none";
+  modal.close();
   submitClip(data);
 }
 
 const progressBar = document.getElementById(
   "progressBar"
 ) as HTMLProgressElement;
-const progressValue = document.getElementById(
-  "progressPercent"
+const fileProgress = document.getElementById(
+  "file-progress"
 ) as HTMLSpanElement;
+const percentages: NodeListOf<HTMLSpanElement> =
+  document.querySelectorAll(".percentage-bar");
 
-async function uploadFile(file: File) {
+/**
+ * This function makes sure that the percentage text is always overlayed over the progress bar
+ */
+const updatePercentage = (percentage = 0) => {
+  percentage = Math.round(percentage);
+  progressBar.value = percentage;
+
+  percentages[1].style.clipPath = `inset(0 0 0 ${percentage}%)`;
+  for (const el of percentages) {
+    el.innerText = percentage + "%";
+    el.style.top =
+      progressBar.offsetTop +
+      progressBar.offsetHeight / 2 -
+      el.offsetHeight / 2 +
+      "px";
+    el.style.left =
+      progressBar.offsetLeft +
+      progressBar.offsetWidth / 2 -
+      el.offsetWidth / 2 +
+      "px";
+  }
+};
+
+const setProgressElementsVisibility = (visibility: "visible" | "hidden") => {
+  progressBar.style.visibility = visibility;
+  percentages.forEach(
+    (percentage) => (percentage.style.visibility = visibility)
+  );
+};
+
+let filesToken: string | null = null;
+
+export async function uploadFile(file: File) {
   const formData = new FormData();
   formData.append("uploaded_file", file);
-  modal.style.display = "block";
+
+  modal.showModal();
 
   if (
     storageProvider &&
@@ -78,8 +142,8 @@ async function uploadFile(file: File) {
     // todo(ft): uncomment when IPFS works again || localStorage.getItem("fileServer") === "ipfs"
   ) {
     // The progress bar is not available for the fetch request, so hide the progress bar
-    progressBar.style.display = "none";
-    progressValue.innerText = "Uploading to IPFS....";
+    setProgressElementsVisibility("hidden");
+    //percentage.innerText = "Uploading to IPFS....";
 
     let providerEndpoint = "https://ipfs.interclip.app";
 
@@ -104,103 +168,151 @@ async function uploadFile(file: File) {
         );
       });
   } else {
-    progressBar.style.visibility = "hidden";
-    progressValue.innerText = "Preparing upload";
+    setProgressElementsVisibility("hidden");
+    fileProgress.innerText = "Preparing upload";
 
     // Get the AWS presigned URL
     const urlToFetch = new URL("https://iclip.vercel.app");
     urlToFetch.pathname = "api/uploadFile";
     urlToFetch.searchParams.set("name", file.name);
     urlToFetch.searchParams.set("type", file.type);
-    const presignedRes = await fetch(urlToFetch);
+    urlToFetch.searchParams.set("size", file.size.toString());
+
+    const controller = new AbortController();
+    const { signal } = controller;
+
+    registerDomAction(cancelUploadButton, () => {
+      controller.abort();
+    });
+
+    modal.onclose = () => {
+      controller.abort();
+    };
+
+    if (filesToken) {
+      urlToFetch.searchParams.set("token", filesToken);
+    }
+    const uploadUrlResponse = await fetch(urlToFetch, { signal }).catch((e) => {
+      showError(e);
+    });
+
+    if (!uploadUrlResponse) {
+      modal.close();
+      return;
+    }
 
     // Upload the file to the presigned URL
-    if (!presignedRes.ok) {
-      switch (presignedRes.status) {
+    if (!uploadUrlResponse.ok) {
+      switch (uploadUrlResponse.status) {
         case 404:
-          throw new showError("API Endpoint not found");
+          return await showError("API Endpoint not found");
+        case 413:
+          return await showError((await uploadUrlResponse.json()).result);
         case 500:
-          throw new showError("Generic fail");
+          return await showError(
+            "The server failed to initiate the upload. Please try again later"
+          );
         case 503:
-          throw new showError((await presignedRes.json()).result);
+          return await showError((await uploadUrlResponse.json()).result);
       }
 
-      throw new showError(await presignedRes.text());
+      await showError(await uploadUrlResponse.text());
     }
-    const { url, fields } = await presignedRes.json();
+    const { url, fields } = await uploadUrlResponse.json();
     const formData = new FormData();
 
     Object.entries({ ...fields, file }).forEach(([key, value]) => {
       formData.append(key, value);
     });
 
-    const request = new XMLHttpRequest();
-    request.upload.onprogress = (event) => {
-      progressValue.innerText = `${Math.round(
-        (event.loaded / event.total) * 100
-      )}%`;
-      progressBar.value = (event.loaded / event.total) * 100;
-    };
-    request.upload.onloadstart = () =>
-      (progressBar.style.visibility = "visible");
+    const uploadRequest = new XMLHttpRequest();
 
-    request.onreadystatechange = () => {
-      if (request.readyState === XMLHttpRequest.DONE) {
-        const { status } = request;
-        if (status >= 400) {
-          showError(`Upload failed with HTTP ${status}`);
-        } else {
-          const link = `https://files.interclip.app/${fields.key}`;
-          showCode(link);
-        }
+    uploadRequest.upload.onprogress = (event) => {
+      updatePercentage((event.loaded / event.total) * 100);
+      fileProgress.innerText = `${formatBytes(event.loaded)} / ${formatBytes(
+        event.total
+      )}`;
+    };
+    uploadRequest.upload.onloadstart = () => {
+      registerDomAction(cancelUploadButton, () => uploadRequest.abort());
+      setProgressElementsVisibility("visible");
+    };
+
+    uploadRequest.onerror = async () => {
+      await showError("Network Error");
+    };
+
+    uploadRequest.onabort = async () => {
+      console.warn("Upload Aborted");
+      modal.close();
+    };
+
+    uploadRequest.onload = () => {
+      const { status } = uploadRequest;
+      if (status >= 400) {
+        showError(`Upload failed with HTTP ${status}`);
+      } else {
+        showCode(`https://files.interclip.app/${fields.key}`);
       }
     };
 
-    request.open("POST", url);
-    request.send(formData);
-  }
+    modal.onclose = () => {
+      uploadRequest.abort();
+    };
 
-  (document.querySelector(".droppable-area") as HTMLDivElement).style.display =
-    "none";
+    uploadRequest.open("POST", url);
+    uploadRequest.send(formData);
+  }
 }
 
-function triggerCallback(e, callback) {
+function triggerCallback(e: DragEvent | Event, callback: () => {}) {
   if (!callback || typeof callback !== "function") {
     return;
   }
 
-  if (e.dataTransfer) {
-    const urls = new Set<string>();
+  //@ts-ignore
+  if (e.target?.files) {
+    //@ts-ignore
+    callback.call(null, e.target.files);
+    return;
+  }
+  if (e instanceof DragEvent) {
+    if (e.dataTransfer && !e.dataTransfer.files) {
+      const urls = new Set<string>();
 
-    // "Borrowed" from https://github.com/thinkverse/draggable/blob/ddb6d6ff23ef80fb60f80d4119586f4b0902e8f5/src/draggable.ts#L40-L46
-    for (const item of e.dataTransfer.items) {
-      if (["text/uri-list", "text/plain"].includes(item.type)) {
-        urls.add(e.dataTransfer.getData("URL"));
-        continue;
+      // "Borrowed" from https://github.com/thinkverse/draggable/blob/ddb6d6ff23ef80fb60f80d4119586f4b0902e8f5/src/draggable.ts#L40-L46
+      for (const item of e.dataTransfer.items) {
+        if (["text/uri-list", "text/plain"].includes(item.type)) {
+          urls.add(e.dataTransfer.getData("URL"));
+          continue;
+        }
+      }
+
+      const firstURL = urls.values().next().value;
+      if ([...urls].length !== 0 && firstURL && firstURL !== "") {
+        submitClip(firstURL);
+        return;
       }
     }
 
-    const firstURL = urls.values().next().value;
-    if ([...urls].length !== 0 && firstURL && firstURL !== "") {
-      submitClip(firstURL);
-      return;
+    if (e.dataTransfer) {
+      const files = e.dataTransfer.files;
+      if (files.length > 0) {
+        callback.call(null, files);
+      }
     }
-  }
-
-  let files;
-  if (e.dataTransfer) {
-    files = e.dataTransfer.files;
-  } else if (e.target) {
-    files = e.target.files;
-  }
-  if (files.length > 0) {
-    callback.call(null, files);
+  } else {
+    alertUser({
+      title: "Something has gone wrong",
+      text: "Please selecting your file again",
+      icon: "error",
+    });
   }
 }
 
 window.fileOver = false;
 
-function makeDroppable(ele, callback) {
+function makeDroppable(element: HTMLElement, callback: any) {
   const input = document.createElement("input");
   input.setAttribute("type", "file");
   input.setAttribute("multiple", "false");
@@ -208,25 +320,25 @@ function makeDroppable(ele, callback) {
   input.addEventListener("change", (e) => {
     triggerCallback(e, callback);
   });
-  ele.appendChild(input);
+  element.appendChild(input);
 
-  ele.addEventListener("dragover", (e) => {
+  element.addEventListener("dragover", (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     fileOver = true;
     if (dropzone) {
       dropzone.classList.add("dragover");
     }
-    ele.classList.add("dragover");
+    element.classList.add("dragover");
   });
 
-  ele.addEventListener("dragleave", (e) => {
+  element.addEventListener("dragleave", (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     fileOver = false;
     setInterval(() => {
       if (!fileOver) {
-        ele.classList.remove("dragover");
+        element.classList.remove("dragover");
         if (dropzone) {
           dropzone.classList.remove("dragover");
         }
@@ -234,11 +346,25 @@ function makeDroppable(ele, callback) {
     }, 100);
   });
 
-  ele.addEventListener("drop", (e) => {
+  element.addEventListener("dragend", (e: DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     fileOver = false;
-    ele.classList.remove("dragover");
+    setInterval(() => {
+      if (!fileOver) {
+        element.classList.remove("dragover");
+        if (dropzone) {
+          dropzone.classList.remove("dragover");
+        }
+      }
+    }, 100);
+  });
+
+  element.addEventListener("drop", (e: DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    fileOver = false;
+    element.classList.remove("dragover");
     triggerCallback(e, callback);
   });
 
@@ -250,34 +376,23 @@ function makeDroppable(ele, callback) {
   }
 }
 
-makeDroppable(document.body, (files: File[]) => {
-  document.getElementById("content")!.style.display = "none";
-  output.innerHTML = "";
+makeDroppable(document.body, async (files: File[]) => {
+  if (dropzone) {
+    dropzone.classList.remove("dragover");
+  }
 
   const [file] = files;
 
-  if (file.type.indexOf("image/") === 0) {
+  if (file.type.startsWith("image/")) {
     const image = new Image(200);
     image.src = URL.createObjectURL(file);
-    output.appendChild(image);
   }
 
   const fileNameElement = document.createElement("p");
   fileNameElement.innerText = file.name;
-  output.appendChild(fileNameElement);
 
-  if (file.size > fileSizeLimitInBytes) {
-    alertUser(
-      {
-        title: "Something's went wrong",
-        text: `Your file is ${formatBytes(
-          file.size
-        )}, which is over the limit of ${fileSizeLimitInMegabytes}MB`,
-        icon: "error",
-      },
-      true
-    );
-  }
+  updatePercentage(0);
+
   uploadFile(file);
 });
 
@@ -292,7 +407,13 @@ document.onpaste = (event) => {
   }
 };
 
-window.onload = () => {
+const fileTokenElement = document.getElementById("filesToken");
+if (fileTokenElement) {
+  filesToken = fileTokenElement.innerText.trim();
+  fileTokenElement.remove();
+}
+
+(() => {
   if (storageProvider) {
     const preferredDestination = localStorage.getItem("fileServer") || "iclip";
     const selectedOption = [...storageProvider.options].find(
@@ -309,10 +430,11 @@ window.onload = () => {
       storageProvider.value = preferredDestination;
     }
   }
+})();
 
-  fetch("https://interclips.filiptronicek.workers.dev/")
-    .then((res) => res.text())
-    .then((res) => {
-      fact.innerText = res;
-    });
-};
+updatePercentage();
+
+if (dropzone) {
+  initTabs();
+}
+

@@ -23,6 +23,12 @@
         $fileUpload = true;
         ?>
 
+        <?php if ($isStaff && $_ENV["FILES_TOKEN"]) : ?>
+            <span style="display: none" id="filesToken">
+                <?php echo $_ENV["FILES_TOKEN"] ?>
+            </span>
+        <?php endif; ?>
+
         <?php if ($fileUpload) : ?>
             <span id="content"> </span>
             <div class="title">
@@ -35,28 +41,55 @@
                         <option value="iclip" selected>Interclip Storage Server</option>
                     </select>
                 </div>
-                <div class="droppable-area" id="dropzone">
-                    <p>Drag files here or click to upload</p>
-                </div>
+                <?php if ($isStaff) : ?>
 
-                <div id="modal" class="modal">
+                <?php endif; ?>
 
-                    <!-- Modal content -->
-                    <div class="modal-content">
-                        <span>
-                            <progress id="progressBar" value="0" max="100"></progress>
-                            <br>
-                            <span id="progressPercent">
-                                0%
-                            </span>
-                            <div id="fact">
-                                Inter-clippin' good!
+                <div class="container--tabs">
+                    <section class="row">
+                        <ul class="nav nav-tabs">
+                            <li class="active"><a title="Upload a file" href="#file">File</a></li>
+                            <li class=""><a title="Upload a text snippet" href="#text">Text</a></li>
+                        </ul>
+                        <div class="tab-content">
+                            <div id="file" class="tab-pane active">
+                                <div class="droppable-area" id="dropzone">
+                                    <p>Drag files here or click to upload</p>
+                                </div>
                             </div>
+                            <div id="text" class="tab-pane">
+                                <span class="glyphicon glyphicon-fire glyphicon--home--feature two columns text-center"></span>
+                                <span class="col-md-10">
+                                    <form action="" id="gist">
+                                        <textarea class="mono" name="data" placeholder="Eggs, chocolate, milk" required></textarea>
+                                        <br />
+                                        <input type="submit" value="Create clip from text">
+                                    </form>
+                                </span>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+                <dialog id="modal">
+                    <progress id="progressBar" value="0" max="100"></progress>
+                    <span class="percentage-bar">
+                        0%
+                    </span>
+                    <span class="percentage-bar">
+                        0%
+                    </span>
+                    <br />
+                    <span id="file-progress">
+                        0 B / 0 B
+                    </span>
+                    <div>
+                        <span class="control-icon" title="Cancel upload" tabindex="0" id="cancel-upload">
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9.75 9.75l4.5 4.5m0-4.5l-4.5 4.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
                         </span>
                     </div>
-
-                </div>
-                <div class="output"></div>
+                </dialog>
             </div>
 
             <script>
