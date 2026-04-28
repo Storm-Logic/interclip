@@ -52,7 +52,7 @@ if (isAdmin) {
 
 const isPhone = !isTablet
   ? "ontouchstart" in document.documentElement &&
-    /mobi/i.test(navigator.userAgent)
+  /mobi/i.test(navigator.userAgent)
   : false;
 
 function showPaintTimings() {
@@ -89,7 +89,7 @@ export const alertUser = async (
   }
 };
 
-export function a11yClick(event) {
+export function a11yClick(event: KeyboardEvent) {
   if (event.type === "keydown") {
     if (event.code === "Space" || event.code === "Enter") {
       return true;
@@ -107,14 +107,13 @@ const showSettingsModal = () => {
   settingsModal.classList.add("settings-shown");
 }
 
-// When the user clicks the button, open the modal
 btn.onclick = () => {
   showSettingsModal();
-  settingsModal.addEventListener("keydown", e => {
+  document.onkeydown = e => {
     if (e.code === "Escape") {
       closeSettingsModal();
     }
-  })
+  }
 };
 
 btn.onkeydown = (evt) => {
@@ -166,9 +165,8 @@ betaToggle.addEventListener("change", () => {
 
 /* Initialization */
 
-systemOpt.innerText = systemOpt.innerText += ` ${
-  isTablet ? "📱" : isPhone ? "📱" : "💻"
-}`;
+systemOpt.innerText = systemOpt.innerText += ` ${isTablet ? "📱" : isPhone ? "📱" : "💻"
+  }`;
 
 const updateOptions = () => {
   colorSchemePreference.value =
