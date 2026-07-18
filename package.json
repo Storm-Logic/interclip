@@ -1,11 +1,11 @@
 {
   "version": "4.3.0",
   "dependencies": {
-    "dark-mode-toggle": "^0.14.4",
-    "esbuild": "^0.17.15",
-    "qrcode": "^1.5.1",
-    "sass": "^1.60.0",
-    "sweetalert2": "^11.6.4"
+    "dark-mode-toggle": "^0.14.6",
+    "esbuild": "^0.17.18",
+    "qrcode": "^1.5.3",
+    "sass": "^1.62.0",
+    "sweetalert2": "^11.7.5"
   },
   "scripts": {
     "build": "esbuild `find ./js \\( -name '*.ts' -o -name '*.js' \\)` --outdir=out --bundle --minify && yarn compile:styles --style compressed --no-source-map",
