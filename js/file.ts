@@ -252,7 +252,8 @@ export async function uploadFile(file: File) {
       if (status >= 400) {
         showError(`Upload failed with HTTP ${status}`);
       } else {
-        showCode(`https://files.interclip.app/${encodeURIComponent(fields.key)}`);
+        const [prefix, ...key] = fields.key.split("/");
+        showCode(`https://files.interclip.app/${prefix}/${encodeURIComponent(key.join("/"))}`);
       }
     };
 
@@ -444,4 +445,7 @@ updatePercentage();
 if (dropzone) {
   initTabs();
 }
+
+// Warm up the serverless upload endpoint to reduce cold starts
+fetch("https://iclip.vercel.app/api/uploadFile", { method: "HEAD" }).catch(() => {});
 

@@ -95,9 +95,10 @@ SimpleRouter::group(['prefix' => ROOT], function () {
 
     // Match clip codes
     SimpleRouter::all(
-        '/code',
+        '/{user_code}',
         function ($user_code) {
-            include_once "components/get.php";
+            include_once "includes/lib/functions.php";
+            include_once "includes/components/get.php";
             if (isset($url)) {
                 reDir($url);
             } else {
@@ -105,7 +106,7 @@ SimpleRouter::group(['prefix' => ROOT], function () {
                 include_once "includes/error.php";
             }
         }
-    )->setMatch('/^\/([a-z|0-9|A-Z]){5}\/?$/');
+    )->where(['user_code' => '[a-zA-Z0-9]{5}']);
 
     /* Internal behavior */
 
