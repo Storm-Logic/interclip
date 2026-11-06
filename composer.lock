@@ -4,20 +4,20 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e430dce0b011c1a04efc987dfe22ee09",
+    "content-hash": "0db4ebb10c58c329146a2cad6fe84302",
     "packages": [
         {
             "name": "auth0/auth0-php",
-            "version": "8.19.0",
+            "version": "9.5.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/auth0/auth0-PHP.git",
-                "reference": "043ddd31e75ce383c6060c30c683cfa3b5dd8c3b"
+                "reference": "c38bf8ace8585f5a1f93565ad3779f4ecce2214f"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/auth0/auth0-PHP/zipball/043ddd31e75ce383c6060c30c683cfa3b5dd8c3b",
-                "reference": "043ddd31e75ce383c6060c30c683cfa3b5dd8c3b",
+                "url": "https://api.github.com/repos/auth0/auth0-PHP/zipball/c38bf8ace8585f5a1f93565ad3779f4ecce2214f",
+                "reference": "c38bf8ace8585f5a1f93565ad3779f4ecce2214f",
                 "shasum": ""
             },
             "require": {
@@ -25,25 +25,30 @@
                 "ext-mbstring": "*",
                 "ext-openssl": "*",
                 "php": "^8.2",
+                "php-http/discovery": "^1.0",
                 "php-http/multipart-stream-builder": "^1",
                 "psr-discovery/all": "^1",
+                "psr/http-client": "^1.0",
                 "psr/http-client-implementation": "^1",
+                "psr/http-factory": "^1.0",
                 "psr/http-factory-implementation": "^1",
+                "psr/http-message": "^1.1 || ^2.0",
                 "psr/http-message-implementation": "^1"
             },
             "require-dev": {
-                "ergebnis/composer-normalize": "~2.43.0",
-                "friendsofphp/php-cs-fixer": "~3.59.0",
-                "mockery/mockery": "~1.6.0",
-                "pestphp/pest": "~2.36.0",
-                "phpstan/phpstan": "~1.11.0",
-                "phpstan/phpstan-strict-rules": "~1.6.0",
-                "psr-mock/http": "~1.0.0",
-                "rector/rector": "~0.17.0",
-                "spatie/ray": "~1.41.0",
-                "symfony/cache": "^4 || ^5 || ^6",
-                "symfony/event-dispatcher": "^4 || ^5 || ^6",
-                "vimeo/psalm": "~5.25.0",
+                "ergebnis/composer-normalize": "^2.43",
+                "friendsofphp/php-cs-fixer": "^3.59",
+                "guzzlehttp/guzzle": "^7.4",
+                "mockery/mockery": "^1.6",
+                "pestphp/pest": "^3.0",
+                "phpstan/phpstan": "^1.11 || ^2.0",
+                "phpstan/phpstan-strict-rules": "^1.6 || ^2.0",
+                "phpunit/phpunit": "^11.0 || ^12.0",
+                "psr-mock/http": "^1.0",
+                "rector/rector": "^1.0 || ^2.0",
+                "symfony/cache": "^6 || ^7",
+                "symfony/event-dispatcher": "^6 || ^7",
+                "vimeo/psalm": "^5.25 || ^6.0",
                 "wikimedia/composer-merge-plugin": "~2.1.0"
             },
             "suggest": {
@@ -101,22 +106,22 @@
             ],
             "support": {
                 "issues": "https://github.com/auth0/auth0-PHP/issues",
-                "source": "https://github.com/auth0/auth0-PHP/tree/8.19.0"
+                "source": "https://github.com/auth0/auth0-PHP/tree/9.5.0"
             },
-            "time": "2026-04-01T10:26:14+00:00"
+            "time": "2026-10-14T10:37:59+00:00"
         },
         {
             "name": "composer/semver",
-            "version": "3.4.4",
+            "version": "3.6.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/composer/semver.git",
-                "reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95"
+                "reference": "d92543b7ede9c4ec6b59853cefb061e39866d2cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/composer/semver/zipball/198166618906cb2de69b95d7d47e5fa8aa1b2b95",
-                "reference": "198166618906cb2de69b95d7d47e5fa8aa1b2b95",
+                "url": "https://api.github.com/repos/composer/semver/zipball/d92543b7ede9c4ec6b59853cefb061e39866d2cf",
+                "reference": "d92543b7ede9c4ec6b59853cefb061e39866d2cf",
                 "shasum": ""
             },
             "require": {
@@ -158,7 +163,7 @@
                     "homepage": "http://robbast.nl"
                 }
             ],
-            "description": "Semver library that offers utilities, version constraint parsing and validation.",
+            "description": "Version comparison library that offers utilities, version constraint parsing and validation.",
             "keywords": [
                 "semantic",
                 "semver",
@@ -168,7 +173,7 @@
             "support": {
                 "irc": "ircs://irc.libera.chat:6697/composer",
                 "issues": "https://github.com/composer/semver/issues",
-                "source": "https://github.com/composer/semver/tree/3.4.4"
+                "source": "https://github.com/composer/semver/tree/3.6.0"
             },
             "funding": [
                 {
@@ -180,7 +185,7 @@
                     "type": "github"
                 }
             ],
-            "time": "2025-08-20T19:15:30+00:00"
+            "time": "2026-10-29T09:13:34+00:00"
         },
         {
             "name": "graham-campbell/result-type",
